@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '6.0.x'
+      - name: Navigate to project folder
+        working-directory: VS-AppService-Trainer/
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
