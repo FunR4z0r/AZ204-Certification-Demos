@@ -5,7 +5,8 @@ using VS_AzureAppService_Trainer.Models;
 
 namespace VS_AzureAppService_Trainer.Controllers
 {
-    [Authorize]
+    //[Authorize]
+    [AllowAnonymous]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

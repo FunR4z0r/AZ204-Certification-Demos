@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
@@ -17,13 +18,20 @@ namespace VS_AzureAppService_Trainer
             builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
 
-            builder.Services.AddControllersWithViews(options =>
+            Action<MvcOptions> configureControllers = new Action<MvcOptions>(options =>
             {
                 var policy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build();
                 options.Filters.Add(new AuthorizeFilter(policy));
             });
+
+            bool.TryParse(builder.Configuration["RequireOpenId"], out var requireOpenIdAuth);
+            if (requireOpenIdAuth)
+                builder.Services.AddControllersWithViews(configureControllers);
+            else
+                builder.Services.AddControllersWithViews();
+
             builder.Services.AddRazorPages()
                 .AddMicrosoftIdentityUI();
 
