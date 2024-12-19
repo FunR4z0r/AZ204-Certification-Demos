@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -25,6 +26,16 @@ namespace VS_AzureAppService_Trainer
                     .Build();
                 options.Filters.Add(new AuthorizeFilter(policy));
             });
+
+            // Add Key Vault configuration provider
+            bool.TryParse(builder.Configuration["IsConfidentialApplication"], out var isConfidentialApplication);
+            var keyVaultConfig = builder.Configuration.GetSection("KeyVaultAuth");
+            if (isConfidentialApplication)
+                builder.Configuration.AddAzureKeyVault(new Uri(keyVaultConfig["VaultUri"]),
+                    new ClientSecretCredential(keyVaultConfig["TenantId"], keyVaultConfig["ClientId"], keyVaultConfig["ClientSecret"]));
+            else
+                builder.Configuration.AddAzureKeyVault(new Uri(keyVaultConfig["VaultUri"]),
+                    new DefaultAzureCredential());
 
             bool.TryParse(builder.Configuration["RequireOpenId"], out var requireOpenIdAuth);
             if (requireOpenIdAuth)
